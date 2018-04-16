@@ -12,9 +12,9 @@ start_time = time.time()
 import FuncionesMias as f
 #--------------main----------------
 
-def main(templateImage,img_orig,rotacionStart_orig,rotacionEnd_orig,threshold_orig,orden):
+def main(templateImage,img_orig,rotacionStart_orig,rotacionEnd_orig,threshold_orig,orden,outFolder):
     orden = int(orden)
-    
+    rotacionStart_orig = int(rotacionStart_orig)
     if orden == -1:
         temp = rotacionStart_orig
         rotacionStart_orig = rotacionEnd_orig
@@ -37,18 +37,20 @@ def main(templateImage,img_orig,rotacionStart_orig,rotacionEnd_orig,threshold_or
         if  os.path.exists("found.txt"): break
         print(rotacion)
         #----------------------------  rotation ------------------------------------
+        rotacion = int(rotacion)
         img_gray_rotated = f.rotate_image4(img_gray1, rotacion)         #cv2.imshow('img_gray_rotated',img_gray_rotated)
         img_rgb_orig_rotated = f.rotate_image4(img_rgb_orig, rotacion)  #cv2.imshow('img_rgb_orig_rotated',img_rgb_orig_rotated)
         #-----------------------detecctar logo  ------------------------------------
         res = cv2.matchTemplate(img_gray_rotated,template,cv2.TM_CCOEFF_NORMED)
         loc = np.where( res >= threshold)
-        print(loc)
+#        print(loc)
         if  all(loc) :
 #            print("----------------",threshold," ",rotacion,"  ",loc)
             encontardo = 1
             nfile,ext = img_orig.split(".")
             entero, decimal = divmod(threshold, 1)
-            cv2.imwrite(nfile+"_up"+"_"+str(round(time.time()-start_time,2))+"_"+str(decimal)+".jpg", img_rgb_orig_rotated)  
+            cv2.imwrite(outFolder + nfile+"_up"+"_"+str(round(time.time()-start_time,2))+"_"+str(decimal)+".jpg", img_rgb_orig_rotated)  
+            print(outFolder + nfile+"_up"+"_"+str(round(time.time()-start_time,2))+"_"+str(decimal)+".jpg")
             file = open("found.txt", "w")
 #            file.write(nfile + "_up" + "_" + str(round(time.time() - start_time,2)) + "_" + str(decimal) + ".jpg") 
             file.write(str(decimal)) 
@@ -86,14 +88,15 @@ def main(templateImage,img_orig,rotacionStart_orig,rotacionEnd_orig,threshold_or
 ##############################################################
 
     
-if len(sys.argv) == 7: 
+if len(sys.argv) == 8: 
     templateImage = sys.argv[1]
     img_orig = sys.argv[2]
     rotacionStart = sys.argv[3]
     rotacionEnd = sys.argv[4]       
     threshold  = sys.argv[5]    
-    order  = sys.argv[6]    
-    res = main(templateImage,img_orig,rotacionStart,rotacionEnd,threshold,order)
+    order  = sys.argv[6]  
+    outFolder = sys.argv[7]  
+    res = main(templateImage,img_orig,rotacionStart,rotacionEnd,threshold,order,outFolder)
 #    print("--- %s seconds ---" % (time.time() - start_time),res)  
     print(res)  
 else:
